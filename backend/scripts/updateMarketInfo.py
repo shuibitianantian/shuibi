@@ -12,21 +12,21 @@ from constants import DB_NAME, MARKET_INFO, COMPANY_INFO
 from helper.DBHelper import DBHelper
 import yfinance as yf
 
-if __name__ == '__main__':
-    dbHelper = DBHelper(DB_NAME)
 
-    companySymbols = dbHelper.execute(f"SELECT symbol FROM {COMPANY_INFO}")
+def update_market_info():
+    db_helper = DBHelper(DB_NAME)
 
-    is_init = None
+    company_symbols = db_helper.execute(f"SELECT symbol FROM {COMPANY_INFO}")
 
-    dbHelper.execute(f"DROP TABLE {MARKET_INFO}")
+    # # Drop the table will cause the program always fetch max data
+    # db_helper.execute(f"DROP TABLE {MARKET_INFO}")
 
     try:
-        dbHelper.execute(f"select * from {MARKET_INFO}")
+        db_helper.execute(f"select * from {MARKET_INFO}")
         is_init = False
     except mysql.connector.errors.ProgrammingError as e:
         if f"'shuibi.{MARKET_INFO.lower()}' doesn't exist" in str(e):
-            dbHelper.execute(
+            db_helper.execute(
                 f"""
                     CREATE TABLE {MARKET_INFO} (
                         date VARCHAR(255),
@@ -37,23 +37,24 @@ if __name__ == '__main__':
                         volume DOUBLE,
                         dividends DOUBLE,
                         stockSplits DOUBLE,
-                        symbol VARCHAR(255)
+                        symbol VARCHAR(255),
+                        PRIMARY KEY (symbol, date)
                     ) ENGINE=INNODB;
                 """)
         is_init = True
 
     unhandled_companies = []
-    for idx, row in enumerate(companySymbols):
+    for idx, row in enumerate(company_symbols):
         symbol = row[0]
         try:
-            print(f'{idx + 1}/{len(companySymbols)} Updating marget info for {symbol}.')
+            print(f'{idx + 1}/{len(company_symbols)} Updating marget info for {symbol}.')
             stock = yf.Ticker(symbol)
             hist = stock.history(period='max' if is_init else '1d')
             hist.reset_index(drop=False, inplace=True)
             hist['symbol'] = [symbol] * hist.shape[0]
             hist = hist.replace(np.nan, None)
 
-            dbHelper.insert_multiple(
+            db_helper.insert_multiple(
                 f"""
                     INSERT INTO {MARKET_INFO} 
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -64,5 +65,3 @@ if __name__ == '__main__':
         except Exception as e:
             print(f"{symbol}: {e}")
             unhandled_companies.append(symbol)
-
-    print(unhandled_companies)
