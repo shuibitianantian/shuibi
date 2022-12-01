@@ -25,7 +25,8 @@ def update_market_info():
         db_helper.execute(f"select * from {MARKET_INFO}")
         is_init = False
     except mysql.connector.errors.ProgrammingError as e:
-        if f"'shuibi.{MARKET_INFO.lower()}' doesn't exist" in str(e):
+        print(e)
+        if f"'shuibi.{MARKET_INFO}' doesn't exist" in str(e):
             db_helper.execute(
                 f"""
                     CREATE TABLE {MARKET_INFO} (
@@ -49,18 +50,17 @@ def update_market_info():
         try:
             print(f'{idx + 1}/{len(company_symbols)} Updating marget info for {symbol}.')
             stock = yf.Ticker(symbol)
-            hist = stock.history(period='max' if is_init else '1d')
+            hist = stock.history(period='1m' if is_init else '1y')
             hist.reset_index(drop=False, inplace=True)
             hist['symbol'] = [symbol] * hist.shape[0]
             hist = hist.replace(np.nan, None)
 
             db_helper.insert_multiple(
                 f"""
-                    INSERT INTO {MARKET_INFO} 
+                    REPLACE INTO {MARKET_INFO} 
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, hist.values.tolist()
             )
-
             time.sleep(0.5)
         except Exception as e:
             print(f"{symbol}: {e}")

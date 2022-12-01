@@ -39,7 +39,3 @@ def update_models(size=-1, dump_performance=False, save_model=False):
 
     if dump_performance:
         register_performance_data(performance)
-
-
-if __name__ == '__main__':
-    update_models(20, True, True)

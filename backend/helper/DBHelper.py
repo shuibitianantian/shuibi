@@ -13,7 +13,7 @@ from pathlib import Path
 import os
 
 DOTENV_FILE = os.path.join(Path(__file__).parent.absolute(), '.env')
-env_config = AutoConfig(search_path=DOTENV_FILE)
+AutoConfig(search_path=DOTENV_FILE)
 
 HOSTNAME = config('hostname')
 USERNAME = config('uname')
