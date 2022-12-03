@@ -34,15 +34,15 @@ def prepare_data(data: pd.DataFrame, label_return_period=20, rolling_day=30, ann
     data["ema 12"] = talib.EMA(data.close, 12)
     data["ema 26"] = talib.EMA(data.close, 26)
 
-    labels = ((data.close.pct_change(label_return_period).dropna().values > threshold) + 0).tolist()
+    labels = ((data.close.pct_change() > threshold) + 0).tolist()[1:]
 
     scaler = StandardScaler()
     normalized_data = pd.DataFrame(scaler.fit_transform(data.reset_index(drop=True)), columns=data.columns,
                                    index=data.index)
 
-    normalized_data["label"] = labels + label_return_period * [np.NAN]
+    normalized_data["label"] = labels + [np.NAN]
 
-    normalized_data.dropna(how="any", axis="rows", inplace=True)
+    # normalized_data.dropna(how="any", axis="rows", inplace=True)
 
     return normalized_data
 
@@ -57,4 +57,5 @@ if __name__ == '__main__':
     hist['date'] = pd.to_datetime(hist.date, infer_datetime_format=False)
 
     normalized_data = prepare_data(hist)
-    print(normalized_data.columns)
+    print(normalized_data)
+

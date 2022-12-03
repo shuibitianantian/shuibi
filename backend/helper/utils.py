@@ -1,3 +1,5 @@
+import datetime
+import pytz
 from constants import COMPANY_INFO, PROCESSED_DATA, PERFORMANCE
 from helper.DBHelper import DBHelper
 
@@ -48,4 +50,12 @@ def register_performance_data(performance):
         db.insert_multiple(f"REPLACE INTO {PERFORMANCE} VALUES (%s, %s, %s, %s)", performance)
 
     del db
+
+
+def get_est_today_with_offset(offset=0):
+    return str(datetime.datetime.utcnow().replace(tzinfo=pytz.timezone('US/Eastern')).date() - datetime.timedelta(days=offset))
+
+
+if __name__ == '__main__':
+    print(get_est_today_with_offset(3))
 

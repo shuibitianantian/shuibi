@@ -23,7 +23,6 @@ def update_market_info():
 
     try:
         db_helper.execute(f"select * from {MARKET_INFO}")
-        is_init = False
     except mysql.connector.errors.ProgrammingError as e:
         print(e)
         if f"'shuibi.{MARKET_INFO}' doesn't exist" in str(e):
@@ -42,7 +41,6 @@ def update_market_info():
                         PRIMARY KEY (symbol, date)
                     ) ENGINE=INNODB;
                 """)
-        is_init = True
 
     unhandled_companies = []
     for idx, row in enumerate(company_symbols):
@@ -50,7 +48,7 @@ def update_market_info():
         try:
             print(f'{idx + 1}/{len(company_symbols)} Updating marget info for {symbol}.')
             stock = yf.Ticker(symbol)
-            hist = stock.history(period='1m' if is_init else '1y')
+            hist = stock.history(period='max')
             hist.reset_index(drop=False, inplace=True)
             hist['symbol'] = [symbol] * hist.shape[0]
             hist = hist.replace(np.nan, None)
@@ -61,7 +59,6 @@ def update_market_info():
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, hist.values.tolist()
             )
-            time.sleep(0.5)
         except Exception as e:
             print(f"{symbol}: {e}")
             unhandled_companies.append(symbol)
