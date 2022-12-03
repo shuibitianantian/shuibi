@@ -15,4 +15,4 @@ AWS services: `S3`, `Lambda Function`, `API Gateway`
 4. Build model and save it locally
 5. Predict and upload prediction to `S3`
 
-Currently, I am processing data locally and upload it to S3. In fact, I can host everything by `Lambda Function` or use `EC2`. Because the steps are fixed, I can use `EventBridge` to trigger the data process routine after the trading period. I did do it because I want to save my time to play __`Dota2`__.
+Currently, I am processing data locally and upload it to S3. In fact, I can host everything by `Lambda Function` or use `EC2`. Because the steps are fixed, I can use `EventBridge` to trigger the data process routine after the trading period. I did not do it because I want to save my time to play __`Dota2`__.
