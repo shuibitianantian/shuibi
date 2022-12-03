@@ -1,5 +1,5 @@
 # Shuibi Prediction Project
-This is the project to demonstrate one of my academic project when I was study at Stevens Institute of Technology, the course code was BIA 656.
+This is the project to demonstrate one of my academic projects when I was study at Stevens Institute of Technology, the course code was BIA 656.
 
 # Why this name?
 This is the name that I used for my first character (`warlock`) that I created in World of Warcraft, the Chinese version is __`水笔`__, I love this name for no reason.
