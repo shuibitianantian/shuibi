@@ -5,7 +5,6 @@ Design:
 2. The helper should be able to dump data into database
 3. The helper should be able to run SQL to get data from database
 
-We use `sqlalchemy` to connect database
 """
 from decouple import config, AutoConfig
 from mysql import connector
