@@ -1,0 +1,1 @@
+export const companyInfo = "https://bjpzkhod89.execute-api.us-east-1.amazonaws.com/getCompanyInfo";

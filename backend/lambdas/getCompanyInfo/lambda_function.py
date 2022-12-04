@@ -17,28 +17,35 @@ SECRET = config('AWS_SECRET_KEY')
 
 
 def get_est_today_with_offset(offset=0):
-    return str(datetime.datetime.utcnow().replace(tzinfo=pytz.timezone('US/Eastern')).date() - datetime.timedelta(days=offset))
+    return str(
+        datetime.datetime.utcnow().replace(tzinfo=ZoneInfo('US/Eastern')).date() - datetime.timedelta(days=offset))
 
 
 def lambda_handler(event, context):
     yesterday = get_est_today_with_offset(1)
-    s3 = boto3.client('s3', aws_access_key_id=KEY, aws_secret_access_key=SECRET)
+    s3 = boto3.client('s3')
     resp = s3.select_object_content(
         Bucket=BUCKET,
         Key=f'tables/{COMPANY_INFO}-{yesterday}.csv',
         ExpressionType='SQL',
-        Expression="SELECT * FROM s3object",
+        Expression="SELECT * FROM s3object s",
         InputSerialization={'CSV': {"FileHeaderInfo": "Use"}, 'CompressionType': 'NONE'},
         OutputSerialization={'JSON': {}},
     )
 
-    results = []
+    results = ''
     for event in resp['Payload']:
         if "Records" in event:
-            record = event["Records"]['Payload'].decode('utf-8')
-            results.append(record)
+            results += event["Records"]['Payload'].decode('utf-8')
+
+    results = [json.loads(row) for row in results.split('\n') if row]
 
     return {
         "statusCode": 200,
+        'headers': {
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+        },
         "body": json.dumps(results)
     }
